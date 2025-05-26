@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}View Print Job: {{ job.job_id }}{% endblock %}
+
+{% block content %}
+<div class="details-section">
+    <h2>Print Job Details: {{ job.job_id }}</h2>
+    <p><strong>Part Name:</strong> {{ job.part_name }} ({{ job.part_id }})</p>
+    <p><strong>Printer Name:</strong> {{ job.printer_name }} ({{ job.printer_id }})</p>
+    <p><strong>Status:</strong> {{ job.status }}</p>
+    <p><strong>Priority:</strong> {{ job.priority | default('10') }}</p>
+    <p><strong>Created At:</strong> {{ job.created_at }}</p>
+    <p><strong>Started At:</strong> {{ job.started_at if job.started_at else 'Not Started' }}</p>
+    <p><strong>Completed At:</strong> {{ job.completed_at if job.completed_at else 'Not Completed' }}</p>
+    <div class="action-links">
+        <a href="{{ url_for('list_print_jobs') }}">Back to Print Queue</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Printer{% endblock %}
+
+{% block content %}
+    <h2>Add New Printer</h2>
+    <form method="post" action="{{ url_for('add_printer') }}">
+        <label for="name">Printer Name:</label><br>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="model">Printer Model:</label><br>
+        <input type="text" id="model" name="model" required><br>
+
+        <label for="status">Status:</label><br>
+        <select id="status" name="status">
+            <option value="idle">Idle</option>
+            <option value="printing">Printing</option>
+            <option value="error">Error</option>
+        </select><br>
+
+        <label for="ip_address">IP Address (e.g., 192.168.1.100):</label><br>
+        <input type="text" id="ip_address" name="ip_address"><br>
+
+        <label for="serial_number">Serial Number (e.g., 00M00A000000000):</label><br>
+        <input type="text" id="serial_number" name="serial_number"><br>
+
+        <label for="access_code">Access Code (from printer screen):</label><br>
+        <input type="text" id="access_code" name="access_code"><br><br>
+
+        <input type="submit" value="Add Printer">
+    </form>
+    <p><a href="{{ url_for('list_printers') }}">Back to Printers List</a></p>
+{% endblock %}

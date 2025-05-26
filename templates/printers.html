@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Printer Management{% endblock %}
+
+{% block content %}
+    <h2>Printers</h2>
+    <div class="action-links">
+        <a href="{{ url_for('add_printer') }}">Add New Printer</a>
+    </div>
+    <ul class="styled-list">
+        {% for printer in printers %}
+        <li>
+            <a href="{{ url_for('view_printer', printer_id=printer.printer_id) }}">{{ printer.name }} ({{ printer.model }})</a>
+            <br><small>Status: {{ printer.status }} | IP: {{ printer.ip_address | default('N/A') }} | Serial: {{ printer.serial_number | default('N/A') }}</small>
+        </li>
+        {% else %}
+        <li>No printers found.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

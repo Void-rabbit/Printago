@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}View Part: {{ part.name }}{% endblock %}
+
+{% block content %}
+<div class="details-section">
+    <h2>Part Details: {{ part.name }}</h2>
+    <p><strong>Part ID:</strong> {{ part.part_id }}</p>
+    <p><strong>Filename:</strong> {{ part.filename }}</p>
+    <p><strong>Material:</strong> {{ part.material }}</p>
+    <p><strong>Print Settings:</strong></p>
+    <pre>{{ part.print_settings }}</pre>
+    <div class="action-links">
+        <a href="{{ url_for('list_parts') }}">Back to Parts List</a>
+        <a href="{{ url_for('add_print_job', part_id=part.part_id) }}">Create Print Job with this Part</a>
+    </div>
+</div>
+{% endblock %}

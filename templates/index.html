@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+    <h2>Welcome to the 3D Print Farm Manager</h2>
+    <p>This application helps you manage your 3D printing parts, printers, and print jobs efficiently.</p>
+    
+    <h3>Quick Links:</h3>
+    <ul>
+        <li><a href="{{ url_for('farm_dashboard') }}">View Farm Dashboard</a></li>
+        <li><a href="{{ url_for('list_parts') }}">Manage Parts</a></li>
+        <li><a href="{{ url_for('list_printers') }}">Manage Printers</a></li>
+        <li><a href="{{ url_for('list_print_jobs') }}">View Print Queue</a></li>
+    </ul>
+
+    <p>If you are a new user, please <a href="{{ url_for('signup') }}">sign up</a>. Existing users can <a href="{{ url_for('login') }}">login here</a>.</p>
+{% endblock %}

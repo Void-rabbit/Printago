@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% extends "base.html" %}
+
+{% block title %}Print Queue{% endblock %}
+
+{% block content %}
+    <h2>Print Queue</h2>
+    <div class="action-links">
+        <a href="{{ url_for('add_print_job') }}">Add New Print Job</a>
+    </div>
+
+    <div style="margin-bottom: 10px;">
+        <button onclick="handleBulkAction('cancel')">Cancel Selected Jobs</button>
+        <button onclick="handleBulkAction('prioritize')">Move Selected to Top Priority</button>
+    </div>
+
+    <form id="printQueueForm">
+        <ul>
+            {% for job in print_jobs %}
+            <li>
+                <input type="checkbox" name="selected_jobs" value="{{ job.job_id }}" id="job_{{ job.job_id }}">
+                <label for="job_{{ job.job_id }}">
+                    <a href="{{ url_for('view_print_job', job_id=job.job_id) }}">Job ID: {{ job.job_id }}</a>
+                    - Part: {{ job.part_name }} ({{ job.part_id }})
+                    - Printer: {{ job.printer_name }} ({{ job.printer_id }})
+                    - Status: {{ job.status }}
+                    - Priority: {{ job.priority | default('10') }} 
+                    - Created: {{ job.created_at }}
+                </label>
+            </li>
+            {% else %}
+            <li>No print jobs found.</li>
+            {% endfor %}
+        </ul>
+    </form>
+
+    <script>
+        function handleBulkAction(action) {
+            const checkboxes = document.querySelectorAll('input[name="selected_jobs"]:checked');
+            const selectedJobIds = Array.from(checkboxes).map(cb => cb.value);
+            if (selectedJobIds.length === 0) {
+                alert('Please select at least one job.');
+                return;
+            }
+            
+            // For now, these actions are conceptual and will just show an alert.
+            // Backend implementation would be needed for actual functionality.
+            if (action === 'cancel') {
+                alert('Conceptual: Cancel Selected Jobs (' + selectedJobIds.join(', ') + ') - Not Implemented');
+                console.log('Cancel Selected Jobs:', selectedJobIds);
+                // Example of what might be done:
+                // fetch('/print_queue/bulk_cancel', { method: 'POST', body: JSON.stringify({ job_ids: selectedJobIds }), headers: {'Content-Type': 'application/json'} })
+                // .then(response => response.json()).then(data => alert(data.message));
+            } else if (action === 'prioritize') {
+                alert('Conceptual: Move Selected to Top Priority (' + selectedJobIds.join(', ') + ') - Not Implemented');
+                console.log('Move Selected to Top Priority:', selectedJobIds);
+                // Example of what might be done:
+                // fetch('/print_queue/bulk_prioritize', { method: 'POST', body: JSON.stringify({ job_ids: selectedJobIds }), headers: {'Content-Type': 'application/json'} })
+                // .then(response => response.json()).then(data => alert(data.message));
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Print Job{% endblock %}
+
+{% block content %}
+    <h2>Add New Print Job</h2>
+    <form method="post" action="{{ url_for('add_print_job') }}">
+        <label for="part_id">Select Part:</label><br>
+        <select id="part_id" name="part_id" required>
+            {% for part in parts %}
+            <option value="{{ part.part_id }}" {% if selected_part_id and part.part_id == selected_part_id %}selected{% endif %}>{{ part.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="printer_id">Select Printer:</label><br>
+        <select id="printer_id" name="printer_id" required>
+            {% for printer in printers %}
+            <option value="{{ printer.printer_id }}">{{ printer.name }} ({{ printer.model }})</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="priority">Priority (e.g., 0 for highest, 10 for normal):</label><br>
+        <input type="number" id="priority" name="priority" value="10" min="0"><br><br>
+
+        <input type="submit" value="Add to Print Queue">
+    </form>
+    <div class="action-links">
+        <a href="{{ url_for('list_print_jobs') }}">Back to Print Queue</a>
+    </div>
+{% endblock %}

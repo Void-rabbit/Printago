@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Part{% endblock %}
+
+{% block content %}
+    <h2>Add New Part</h2>
+    <form method="post" action="{{ url_for('add_part') }}" enctype="multipart/form-data">
+        <label for="name">Part Name:</label><br>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="material">Material:</label><br>
+        <input type="text" id="material" name="material" required><br>
+
+        <label for="print_settings">Print Settings:</label><br>
+        <textarea id="print_settings" name="print_settings"></textarea><br>
+
+        <label for="part_file">Part File (STL, 3MF, etc.):</label><br>
+        <input type="file" id="part_file" name="part_file" required><br><br>
+
+        <input type="submit" value="Add Part">
+    </form>
+    <p><a href="{{ url_for('list_parts') }}">Back to Parts List</a></p>
+{% endblock %}

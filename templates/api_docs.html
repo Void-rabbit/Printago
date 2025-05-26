@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}API Documentation{% endblock %}
+
+{% block content %}
+    <h1>API Documentation</h1>
+    <p>This page provides documentation for the 3D Print Farm Manager API. All API endpoints require an <code>X-API-Key</code> header for authentication.</p>
+    <p><strong>Example API Key Header:</strong> <code>X-API-Key: your_secret_api_key</code></p>
+
+    <div class="details-section">
+        <h2>General Information</h2>
+        <ul>
+            <li><strong>Base URL:</strong> <code>/api</code></li>
+            <li><strong>Authentication:</strong> Required for all endpoints. Provide your API key in the <code>X-API-Key</code> request header.</li>
+            <li><strong>Response Format:</strong> JSON</li>
+            <li><strong>Error Responses:</strong> Errors are returned in JSON format, typically with an <code>{"error": "message"}</code> structure. Common HTTP status codes are used (e.g., 400 for bad request, 401 for unauthorized, 404 for not found).</li>
+        </ul>
+    </div>
+
+    <div class="details-section">
+        <h2>Parts API</h2>
+        <p>Endpoints for managing 3D printing parts.</p>
+        
+        <h3>GET <code>/api/parts</code></h3>
+        <ul>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Description:</strong> Returns a list of all parts.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Array of part objects.</li>
+        </ul>
+
+        <h3>GET <code>/api/parts/&lt;part_id&gt;</code></h3>
+        <ul>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Description:</strong> Returns details of a specific part.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Path Parameters:</strong>
+                <ul>
+                    <li><code>part_id</code> (string): The unique identifier for the part.</li>
+                </ul>
+            </li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Part object. <code>404 Not Found</code> if part does not exist.</li>
+        </ul>
+
+        <h3>POST <code>/api/parts</code></h3>
+        <ul>
+            <li><strong>Method:</strong> POST</li>
+            <li><strong>Description:</strong> Creates a new part.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Request Body (JSON):</strong>
+                <pre>{
+    "name": "New Part Name",
+    "material": "PLA",
+    "filename": "new_part.stl",
+    "print_settings": "Layer height: 0.2mm, Infill: 20%"
+}</pre>
+            </li>
+            <li><strong>Required Fields in Body:</strong> <code>name</code>, <code>material</code>. Optional: <code>filename</code>, <code>print_settings</code>.</li>
+            <li><strong>Response:</strong> <code>201 Created</code> - The newly created part object. <code>400 Bad Request</code> for invalid input.</li>
+        </ul>
+
+        <h3>PUT <code>/api/parts/&lt;part_id&gt;</code></h3>
+        <ul>
+            <li><strong>Method:</strong> PUT</li>
+            <li><strong>Description:</strong> Updates an existing part.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Path Parameters:</strong>
+                <ul>
+                    <li><code>part_id</code> (string): The unique identifier for the part to update.</li>
+                </ul>
+            </li>
+            <li><strong>Request Body (JSON):</strong> Contains fields to update.
+                <pre>{
+    "name": "Updated Part Name",
+    "material": "PETG",
+    "print_settings": "Layer height: 0.15mm, Infill: 50%"
+}</pre>
+            </li>
+            <li><strong>Response:</strong> <code>200 OK</code> - The updated part object. <code>400 Bad Request</code> for invalid input. <code>404 Not Found</code> if part does not exist.</li>
+        </ul>
+
+        <h3>DELETE <code>/api/parts/&lt;part_id&gt;</code></h3>
+        <ul>
+            <li><strong>Method:</strong> DELETE</li>
+            <li><strong>Description:</strong> Deletes a part.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Path Parameters:</strong>
+                <ul>
+                    <li><code>part_id</code> (string): The unique identifier for the part to delete.</li>
+                </ul>
+            </li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Success message (e.g., <code>{"message": "Part deleted successfully"}</code>). <code>404 Not Found</code> if part does not exist.</li>
+        </ul>
+    </div>
+
+    <div class="details-section">
+        <h2>Printers API</h2>
+        <p>Endpoints for accessing printer information.</p>
+
+        <h3>GET <code>/api/printers</code></h3>
+        <ul>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Description:</strong> Returns a list of all printers.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Array of printer objects.</li>
+        </ul>
+
+        <h3>GET <code>/api/printers/&lt;printer_id&gt;</code></h3>
+        <ul>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Description:</strong> Returns details of a specific printer, including mocked live status.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Path Parameters:</strong>
+                <ul>
+                    <li><code>printer_id</code> (string): The unique identifier for the printer.</li>
+                </ul>
+            </li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Printer object with a <code>live_status</code> field. <code>404 Not Found</code> if printer does not exist.</li>
+        </ul>
+        <p><em>Note: CUD operations for Printers are not yet implemented in the API.</em></p>
+    </div>
+
+    <div class="details-section">
+        <h2>Print Jobs API</h2>
+        <p>Endpoints for accessing print job information.</p>
+
+        <h3>GET <code>/api/print_jobs</code></h3>
+        <ul>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Description:</strong> Returns a list of all print jobs, sorted by priority and creation date.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Array of print job objects.</li>
+        </ul>
+
+        <h3>GET <code>/api/print_jobs/&lt;job_id&gt;</code></h3>
+        <ul>
+            <li><strong>Method:</strong> GET</li>
+            <li><strong>Description:</strong> Returns details of a specific print job.</li>
+            <li><strong>Authentication:</strong> Required.</li>
+            <li><strong>Path Parameters:</strong>
+                <ul>
+                    <li><code>job_id</code> (string): The unique identifier for the print job.</li>
+                </ul>
+            </li>
+            <li><strong>Response:</strong> <code>200 OK</code> - Print job object. <code>404 Not Found</code> if job does not exist.</li>
+        </ul>
+        <p><em>Note: CUD operations for Print Jobs are not yet implemented in the API.</em></p>
+    </div>
+
+{% endblock %}

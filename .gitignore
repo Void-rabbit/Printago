@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.env
+venv/
+.venv/
+
+# PyInstaller
+build/
+dist/
+
+# Other
+.DS_Store

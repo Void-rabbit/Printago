@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Parts Management{% endblock %}
+
+{% block content %}
+    <h2>Parts</h2>
+    <div class="action-links">
+        <a href="{{ url_for('add_part') }}">Add New Part</a>
+    </div>
+    <ul class="styled-list">
+        {% for part in parts %}
+        <li>
+            <a href="{{ url_for('view_part', part_id=part.part_id) }}">{{ part.name }}</a>
+            <br><small>Material: {{ part.material | default('N/A') }}, Filename: {{ part.filename | default('N/A') }}</small>
+        </li>
+        {% else %}
+        <li>No parts found.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

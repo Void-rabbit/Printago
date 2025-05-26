@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}3D Print Farm Manager{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>3D Print Farm Manager</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('hello_world') }}">Home</a></li>
+            <li><a href="{{ url_for('farm_dashboard') }}">Farm Dashboard</a></li>
+            <li><a href="{{ url_for('list_parts') }}">Parts</a></li>
+            <li><a href="{{ url_for('list_printers') }}">Printers</a></li>
+            <li><a href="{{ url_for('list_print_jobs') }}">Print Queue</a></li>
+            <li><a href="{{ url_for('api_docs') }}">API Docs</a></li>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('signup') }}">Sign Up</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category else 'info' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Print Farm Dashboard{% endblock %}
+
+{% block content %}
+    <style>
+        .printer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .printer-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .printer-card h3 {
+            margin-top: 0;
+        }
+        .queue-summary {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #eef;
+        }
+    </style>
+    <h1>Print Farm Dashboard</h1>
+
+    <h2>Printers Overview</h2>
+    <div class="printer-grid">
+        {% for printer in printers %}
+        <div class="printer-card">
+            <h3>{{ printer.name }}</h3>
+            <p><strong>Model:</strong> {{ printer.model }}</p>
+            <p><strong>Status (Mocked):</strong> {{ printer.live_status.state }}</p>
+            <p><strong>Current Job ID:</strong> 
+                {% if printer.live_status.current_job_id %}
+                <a href="{{ url_for('view_print_job', job_id=printer.live_status.current_job_id) }}">{{ printer.live_status.current_job_id }}</a>
+                {% else %}
+                N/A
+                {% endif %}
+            </p>
+            <div class="action-links">
+                <a href="{{ url_for('view_printer', printer_id=printer.printer_id) }}">View Details</a>
+            </div>
+        </div>
+        {% else %}
+        <p>No printers found. <a href="{{ url_for('add_printer') }}">Add a printer?</a></p>
+        {% endfor %}
+    </div>
+
+    <h2>Print Queue Summary</h2>
+    <div class="queue-summary">
+        <p><strong>Total Jobs:</strong> {{ queue_summary.total_jobs }}</p>
+        <p><strong>Pending:</strong> {{ queue_summary.jobs_pending }}</p>
+        <p><strong>Printing:</strong> {{ queue_summary.jobs_printing }}</p>
+        <p><strong>Completed:</strong> {{ queue_summary.jobs_completed }}</p>
+        <p><strong>Error:</strong> {{ queue_summary.jobs_error }}</p>
+        <div class="action-links">
+            <a href="{{ url_for('list_print_jobs') }}">View Full Print Queue</a>
+        </div>
+    </div>
+{% endblock %}
