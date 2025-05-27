@@ -1,3 +1,71 @@
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
+print("INFO: app.py was imported") # Added print statement
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from functools import wraps
 import json
@@ -449,4 +517,4 @@ def api_docs():
     return render_template('api_docs.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5555, debug=True) # Changed port and added host
