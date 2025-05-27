@@ -59,7 +59,37 @@ Key fields observed in the `print` object:
 -   There is also a cloud API (`https://api.bambulab.com/v1`) used by Bambu Studio and related tools.
 -   Authentication for the cloud API is more complex, involving username/password and potentially MFA.
 -   Projects like `ondrovic/bambulab-authentication-cli` explore this.
--   For direct local control and real-time status, MQTT is preferred.
+-   For direct local control and real-time status, MQTT is preferred for low-latency operations. The Cloud API can complement this with account-level features.
+
+## Cloud API (User Account Authentication & Management)
+
+This section details the cloud-based API provided by Bambu Lab, primarily used for user account authentication and potentially managing printers linked to an account.
+
+-   **API Base URL:** `https://api.bambulab.com/v1`
+-   **Authentication Method:**
+    -   Uses username (email) and password.
+    -   Supports Multi-Factor Authentication (MFA).
+    -   Successful authentication yields an access token (and potentially a refresh token).
+-   **Reference Implementation:** The `ondrovic/bambulab-authentication-cli` GitHub repository provides a Python-based command-line tool that demonstrates this authentication flow. This tool is a key resource for understanding the process.
+-   **Client Metadata:** Successful authentication and subsequent API calls may require specific client metadata in request headers (e.g., `User-Agent`, `Bambu_Client_Name`, `Bambu_Client_Type`, `Bambu_Client_Version`). These should mimic official clients like OrcaSlicer or Bambu Studio, as observed in the `ondrovic/bambulab-authentication-cli` tool's configuration (`.env.example`).
+
+### Post-Authentication Endpoints (To Be Investigated):
+
+Once authenticated, the access token can be used to access further endpoints. The exact structure and capabilities of these endpoints require more detailed investigation, potentially by observing network traffic from official Bambu Lab applications (Bambu Studio, Bambu Handy) or by finding more detailed API documentation. Hypothetical endpoints could include:
+
+*   `/user/printers`: To list printers associated with the authenticated user's account.
+*   `/printers/{device_id}/status`: To get the status of a specific printer linked to the account.
+*   `/printers/{device_id}/print_profiles`: To manage print profiles stored in the cloud for a specific printer.
+*   `/printers/{device_id}/commands`: To send commands (e.g., start print from cloud-stored file, pause, stop) to a printer.
+
+**Note:** "These endpoints are speculative and require further investigation, possibly by observing traffic from official Bambu Lab applications (Bambu Studio, Bambu Handy) after successful authentication via the method demonstrated by `bambulab-authentication-cli`."
+
+### Token Management:
+
+*   The authentication process yields an access token and potentially a refresh token.
+*   These tokens should be securely stored by the client application (like our 3D Print Farm Manager) for making subsequent authenticated API calls.
+*   The `ondrovic/bambulab-authentication-cli` tool, for example, saves these tokens to a local JSON file (`auth.json` by default).
+*   Access tokens are typically short-lived, and refresh tokens (if provided) would be used to obtain new access tokens without requiring the user to re-enter their credentials.
 
 ## Camera Feed:
 -   The printer's camera feed is accessible via RTSP or other streaming protocols.
@@ -74,15 +104,65 @@ Key fields observed in the `print` object:
 -   Detailed structure of error codes and status messages returned via MQTT.
 -   Possibility of programmatically retrieving the printer's `Access Code` and `Serial Number` after an initial setup (unlikely for initial discovery, but potentially for verification or re-establishment of connection). For initial setup, these must be retrieved from the printer's touchscreen.
 
-## Relation to Current Application Implementation
+## Distinction Between Local MQTT API and Cloud API
 
-The 3D Print Farm Manager application currently uses the findings from this research in the following ways:
+It's crucial to distinguish between the two primary APIs discussed:
 
-*   **Printer Model:** The `Printer` data model in `app.py` (and subsequently `printers.json`) includes fields for `ip_address`, `serial_number`, and `access_code`. These fields are directly based on the information required for local MQTT communication with Bambu Lab printers as identified in this document.
-*   **Mocked Status:** The "live status" displayed for printers in the web UI (e.g., on the `/printers/<printer_id>` page and the `/farm_dashboard`) is currently **mocked**. However, the structure of this mocked data (e.g., nozzle temperature, bed temperature, print progress) is inspired by the types of data fields (`nozzle_temper`, `bed_temper`, `mc_percent`, etc.) found in the JSON payloads on the `device/{SERIAL}/report` MQTT topic.
-*   **Future Integration:** The collection of these details (`ip_address`, `serial_number`, `access_code`) is intended to facilitate future development of a real integration with Bambu Lab printers using their local MQTT API. The plan would be to implement an MQTT client within the Flask application (or a separate service it communicates with) that uses these stored credentials to connect to each printer, subscribe to its status topic, and potentially send commands.
+1.  **Local MQTT API:**
+    *   **Purpose:** Direct control and real-time status monitoring of a printer on the local network (LAN).
+    *   **Authentication:** Uses the printer's IP address, serial number, and the "Access Code" found on the printer's screen.
+    *   **Pros:** Low latency, does not require internet connectivity once set up (for local operations).
+    *   **Cons:** Limited to local network access; does not provide access to account-level features or printers outside the LAN.
 
-This research document serves as a foundational guide for that future integration work.
+2.  **Cloud API (User Account Authentication & Management):**
+    *   **Purpose:** Account-level operations, such as listing printers registered to a user's Bambu Lab account, potentially starting prints from cloud-stored files, and managing printer settings remotely.
+    *   **Authentication:** Uses Bambu Lab user account credentials (username/password, MFA), resulting in an access token.
+    *   **Pros:** Access printers from anywhere with an internet connection; manage account-level settings and features.
+    *   **Cons:** Higher latency compared to local MQTT; dependent on internet connectivity and Bambu Lab's cloud services.
+
+## Relation to Current and Future Application Implementation
+
+The 3D Print Farm Manager application's integration with Bambu Lab printers can be envisioned in phases:
+
+*   **Current State (Phase 1 - Local Focus):**
+    *   The `Printer` data model in `app.py` (and `printers.json`) stores `ip_address`, `serial_number`, and `access_code`. This is tailored for the **Local MQTT API**.
+    *   Live status display is currently **mocked**, but the data fields are inspired by MQTT payloads.
+    *   The primary goal with these fields was to prepare for direct local MQTT communication for real-time status and control.
+
+*   **Future Integration Plan (Phase 2 - Hybrid Approach):**
+    *   **Local MQTT API:** Will remain the primary method for real-time status updates and direct control of printers available on the local network. This ensures low latency and continued operation even if cloud services are unavailable.
+    *   **Cloud API:** Will be integrated to:
+        *   Allow users to authenticate with their Bambu Lab cloud accounts.
+        *   Fetch a list of printers registered to their account, potentially pre-filling or allowing users to select printers to add to the farm manager.
+        *   Access cloud-based features if available and relevant (e.g., print history, cloud-stored print profiles, initiating prints from cloud-sliced files).
+        *   The application would need to securely store and manage the access/refresh tokens obtained from the Cloud API authentication.
+    *   This hybrid approach would offer the benefits of both local responsiveness and cloud-based account management and accessibility.
+
+## API Endpoint Verification (October 2024)
+
+An attempt was made to verify the exact Cloud API endpoints for authentication and printer listing.
+
+*   **Authentication Endpoint (`AUTH_ENDPOINT`):**
+    *   The `ondrovic/bambulab-authentication-cli` repository's `.env.example` specifies `BAMBU_API_URL=https://api.bambulab.com/v1`.
+    *   While the README doesn't explicitly state the full path for the initial username/password POST request, the common pattern and the CLI's structure suggest that `https://api.bambulab.com/v1/user/login` is the correct endpoint for the initial authentication attempt. The separate `BAMBU_MFA_URL` (`https://bambulab.com/api/sign-in/tfa`) is used for subsequent MFA steps.
+    *   **Conclusion:** `AUTH_ENDPOINT` in `bambu_cloud_client.py` remains `https://api.bambulab.com/v1/user/login`. This is a reasonably confirmed endpoint for the initial step of authentication.
+
+*   **Printers List Endpoint (`PRINTERS_ENDPOINT`):**
+    *   The `ondrovic/bambulab-authentication-cli` tool focuses solely on authentication and does not provide functionality or examples for listing printers or other post-authentication API calls.
+    *   Targeted web searches (Google, GitHub discussions) for "bambu lab cloud api get printers endpoint", "bambu lab api list devices after login", and similar queries did not yield definitive, officially documented endpoints for listing printers associated with a user account.
+    *   Some community discussions hint at endpoints like `/user/device` or `/device` but without strong confirmation or detailed examples.
+    *   **Conclusion:** The endpoint for fetching a list of printers after login remains **unconfirmed and speculative**. The current `PRINTERS_ENDPOINT = API_BASE_URL + "/user/device"` in `bambu_cloud_client.py` is an educated guess based on limited community information.
+    *   **Blocker:** Without a confirmed endpoint for listing printers, the "printer discovery" feature in the desktop application cannot be reliably implemented beyond its current placeholder status. Further investigation, potentially by inspecting network traffic from official Bambu Lab applications, is required to identify this endpoint. **This is the primary reason the desktop application currently cannot display a list of printers after Bambu Cloud login.**
+
+This research document serves as a foundational guide for both local MQTT and Cloud API integration efforts, noting current uncertainties.
+
+### Camera Feed Access (Not Integrated in UI)
+
+*   **General Access:** Bambu Lab printers typically provide a camera feed accessible via RTSP.
+*   **Common URL Pattern:** `rtsp://<PRINTER_IP>/live` (where `<PRINTER_IP>` is the local IP address of the printer).
+*   **Authentication:** Accessing the RTSP stream usually requires the printer's "Access Code" (the same one used for local MQTT). The exact method of providing these credentials can vary by RTSP client (e.g., `rtsp://user:password@host/path` or prompted by the client).
+*   **Bambu Studio/Handy:** These official applications use this stream for live video.
+*   **Current Application State:** While this information is known, the camera feed is **not integrated** into the current PySide2 desktop UI. The "View Printer Details" section in the UI mockups includes a placeholder for a camera feed, but its implementation was contingent on resolving more fundamental UI construction issues.
 
 ## References (Community Projects)
 

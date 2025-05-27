@@ -1,0 +1,708 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Printago API",
+    "version": "v1.0.0",
+    "description": "API for Printago services, allowing management of print jobs, printers, and parts within a specific Printago store."
+  },
+  "servers": [
+    {
+      "url": "https://api.printago.io/v1",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "authorization"
+      },
+      "StoreIdAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-printago-storeid"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "Part": {
+        "type": "object",
+        "properties": {
+          "partId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the part.",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the part."
+          },
+          "material": {
+            "type": "string",
+            "description": "Default material for the part."
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Original filename of the 3D model."
+          },
+          "fileUrl": {
+            "type": "string",
+            "format": "url",
+            "description": "URL to download the part file."
+          },
+          "printSettings": {
+            "type": "string",
+            "description": "Recommended print settings or profile ID."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "name",
+          "material",
+          "fileName",
+          "fileUrl"
+        ]
+      },
+      "Printer": {
+        "type": "object",
+        "properties": {
+          "printerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the printer.",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the printer."
+          },
+          "model": {
+            "type": "string",
+            "description": "Printer model."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "idle",
+              "printing",
+              "paused",
+              "error",
+              "offline"
+            ],
+            "description": "Current status of the printer."
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of printer capabilities (e.g., materials, nozzle sizes)."
+          },
+          "telemetry": {
+            "type": "object",
+            "properties": {
+              "nozzleTemp": {
+                "type": "number",
+                "format": "float"
+              },
+              "bedTemp": {
+                "type": "number",
+                "format": "float"
+              },
+              "currentJobId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "description": "Real-time telemetry data from the printer."
+          }
+        },
+        "required": [
+          "name",
+          "model",
+          "status"
+        ]
+      },
+      "PrintJob": {
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the print job.",
+            "readOnly": true
+          },
+          "partId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the part to be printed."
+          },
+          "printerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of the printer to use."
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "printing",
+              "completed",
+              "cancelled",
+              "failed"
+            ],
+            "description": "Status of the print job."
+          },
+          "priority": {
+            "type": "integer",
+            "description": "Priority of the print job (lower is higher)."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "required": [
+          "partId",
+          "printerId"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": [],
+      "StoreIdAuth": []
+    }
+  ],
+  "paths": {
+    "/parts": {
+      "get": {
+        "summary": "List all parts",
+        "operationId": "listParts",
+        "tags": [
+          "Parts"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of parts.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Part"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a part",
+        "operationId": "createPart",
+        "tags": [
+          "Parts"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Part"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Part created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Part"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/parts/{partId}": {
+      "get": {
+        "summary": "Info for a specific part",
+        "operationId": "getPartById",
+        "tags": [
+          "Parts"
+        ],
+        "parameters": [
+          {
+            "name": "partId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the part to retrieve.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about the part.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Part"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a specific part",
+        "operationId": "updatePartById",
+        "tags": [
+          "Parts"
+        ],
+        "parameters": [
+          {
+            "name": "partId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the part to update.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Part"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Part updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Part"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a specific part",
+        "operationId": "deletePartById",
+        "tags": [
+          "Parts"
+        ],
+        "parameters": [
+          {
+            "name": "partId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the part to delete.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Part deleted successfully."
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/printers": {
+      "get": {
+        "summary": "List all printers in the store",
+        "operationId": "listPrinters",
+        "tags": [
+          "Printers"
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of printers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Printer"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/printers/{printerId}": {
+      "get": {
+        "summary": "Info for a specific printer",
+        "operationId": "getPrinterById",
+        "tags": [
+          "Printers"
+        ],
+        "parameters": [
+          {
+            "name": "printerId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the printer to retrieve.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about the printer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Printer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/printjobs": {
+      "get": {
+        "summary": "List all print jobs in the store",
+        "operationId": "listPrintJobs",
+        "tags": [
+          "PrintJobs"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter jobs by status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "printing",
+                "completed",
+                "cancelled",
+                "failed"
+              ]
+            }
+          },
+          {
+            "name": "printerId",
+            "in": "query",
+            "description": "Filter jobs by printer ID",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of print jobs.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrintJob"
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new print job",
+        "operationId": "createPrintJob",
+        "tags": [
+          "PrintJobs"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrintJob"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Print job created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrintJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/printjobs/{jobId}": {
+      "get": {
+        "summary": "Info for a specific print job",
+        "operationId": "getPrintJobById",
+        "tags": [
+          "PrintJobs"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the print job to retrieve.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Information about the print job.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrintJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update status of a specific print job",
+        "operationId": "updatePrintJobStatus",
+        "tags": [
+          "PrintJobs"
+        ],
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the print job to update.",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "printing",
+                      "completed",
+                      "cancelled",
+                      "failed"
+                    ]
+                  },
+                  "priority": {
+                     "type": "integer"
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Print job updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrintJob"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

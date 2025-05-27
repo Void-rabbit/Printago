@@ -2,47 +2,39 @@
 
 ## Project Overview
 
-The 3D Print Farm Manager is a web application designed to help users manage their 3D printing projects. It allows for tracking of 3D printable parts, managing a fleet of 3D printers, and organizing a queue of print jobs. The application provides a user-friendly web interface and a RESTful API for programmatic access and integration.
+The 3D Print Farm Manager is a project that aimed to evolve into a desktop application for managing 3D printing projects, with an initial focus on Bambu Lab Cloud integration. The current version features a basic PySide2 desktop UI capable of user authentication against Bambu Lab Cloud and attempting to list registered printers. However, critical API endpoint information for listing printers remains unconfirmed, significantly limiting this core functionality. The application also includes a foundational Flask web backend with a RESTful API (for parts, printers, print jobs) and data storage via JSON files, which is currently separate from the desktop UI's functionality.
 
 ## Features
 
-*   **User Authentication:** Secure signup and login for users.
-*   **Part Management:**
-    *   Store and manage a library of 3D printable parts (name, material, print settings, filename).
-    *   Add new parts via UI.
-    *   View part details.
-*   **Printer Management:**
-    *   Register and manage multiple 3D printers (name, model, status, IP address, serial number, access code).
-    *   View printer details, including (mocked) live status and a placeholder for camera feeds.
-*   **Print Queue Management:**
-    *   Create and manage a queue of print jobs.
-    *   Assign parts to specific printers.
-    *   Job prioritization (lower numbers indicate higher priority).
-    *   View job details and status.
-    *   Conceptual bulk actions (cancel, prioritize) on the queue.
-*   **Print Farm Dashboard:**
-    *   Centralized overview of all registered printers and their (mocked) live status.
-    *   Summary of the print queue (total jobs, pending, printing, completed, error).
-*   **RESTful API:**
-    *   Read-only access to parts, printers, and print jobs.
-    *   Full CRUD (Create, Read, Update, Delete) operations for Parts.
-    *   Basic API key authentication (`X-API-Key` header).
-    *   Dedicated API documentation page.
-*   **Web-Based UI:**
-    *   User-friendly interface built with Flask and HTML templates.
-    *   CSS styling for improved look and feel.
-    *   Responsive design considerations for different screen sizes.
+*   **Desktop Application (PySide2 - Current Focus):**
+    *   User authentication with Bambu Lab Cloud API (username/password).
+    *   Secure local storage and loading of authentication tokens.
+    *   Basic UI for login, displaying a list of printers, and status messages.
+    *   Attempted printer discovery via Bambu Lab Cloud API.
+    *   **Limitation:** Printer list functionality is currently **blocked** due to unconfirmed API endpoints for fetching device lists post-authentication. The UI will likely show an empty printer list or an error.
+    *   **Limitation:** The desktop UI is basic due to development tool limitations impacting UI construction. Advanced features like detailed printer views, job submission, and settings management as described in mockups are **not implemented** in the desktop app.
+*   **Flask Web Application & API (Legacy/Separate Functionality):**
+    *   User Authentication (separate from Bambu Cloud, uses local JSON file).
+    *   Part Management (CRUD via UI and API).
+    *   Printer Management (CRUD via UI - local data, no actual printer control).
+    *   Print Queue Management (CRUD via UI - local data).
+    *   Print Farm Dashboard (UI).
+    *   RESTful API with API key authentication for parts, printers, and print jobs (as documented in `/api/docs` when the Flask app is running).
+*   **Printago API Client:**
+    *   A Python client (`printago_client.py`) for interacting with the Printago API (based on provided OpenAPI spec) has been developed, including read-only and CRUD methods. This is currently not integrated into any UI.
 *   **Testing:**
-    *   Unit tests for API endpoints, authentication logic, and basic UI workflows.
-*   **Deployment Ready (Conceptual):**
-    *   Includes PyInstaller setup for bundling the application as a standalone executable.
+    *   Unit tests for the Flask web application's API endpoints and authentication logic.
+*   **Deployment Configuration:**
+    *   PyInstaller setup (`app.spec`) configured for building the PySide2 `desktop_app.py` as a standalone executable.
 
 ## Project Structure
 
 *   `app.py`: Main Flask application file containing routes, business logic, and data handling.
-*   `run.py`: Entry point for running the application, especially when bundled with PyInstaller.
+*   `desktop_app.py`: Main entry point for the PySide2 desktop application.
+*   `app.py`: Main Flask application file (currently provides web UI and API, may transition to a backend service).
+*   `run.py`: Original entry point for the Flask web application (its role may change).
 *   `requirements.txt`: List of Python dependencies for the project.
-*   `static/`: Directory for static assets (CSS, JavaScript, images).
+*   `static/`: Directory for static assets (CSS, JavaScript, images) for the web interface.
     *   `static/css/style.css`: Main stylesheet for the application.
 *   `templates/`: Directory for HTML templates used by Flask.
     *   `templates/base.html`: Base template providing common layout and navigation.
@@ -57,7 +49,8 @@ The 3D Print Farm Manager is a web application designed to help users manage the
 *   `README.md`: This file - developer documentation.
 *   `USER_GUIDE.md`: User manual for the application.
 *   `DEPLOYMENT.MD`: Instructions for building and deploying the application as a standalone executable.
-*   `bambu_api_research.md`: Research notes on Bambu Lab printer APIs (for future integration).
+*   `bambu_api_research.md`: Research notes on Bambu Lab printer APIs (Local MQTT & Cloud Account API).
+*   `printago_api_research.md`: Research notes on Printago API (Store-specific API).
 
 ## Development Setup
 
@@ -81,27 +74,23 @@ The 3D Print Farm Manager is a web application designed to help users manage the
 
 ## Running the Application (Development)
 
-There are a couple of ways to run the Flask development server:
+The primary focus for execution is the PySide2 desktop application:
+```bash
+python3 desktop_app.py
+```
+This will launch the desktop UI. Login with your Bambu Lab Cloud credentials. Note the known limitation regarding printer list display.
 
-*   **Using `python app.py` (if `app.run()` is present for development):**
-    The `app.py` file is currently set up for this.
-    ```bash
-    python3 app.py
-    ```
-    The application will typically be available at `http://127.0.0.1:5000/`.
-
-*   **Using `flask run`:**
-    You might need to set the `FLASK_APP` environment variable first if your main app file is not `app.py` or `wsgi.py`.
-    ```bash
-    export FLASK_APP=app.py # On Windows: set FLASK_APP=app.py
-    export FLASK_DEBUG=1    # Optional: enables debug mode
-    flask run
-    ```
-    Or, more directly if your main file is `app.py`:
-    ```bash
-    flask run --debug
-    ```
-    The application will typically be available at `http://127.0.0.1:5000/`.
+The Flask web application (for legacy UI and API) can be run separately if needed:
+```bash
+python3 run.py 
+```
+Or using Flask CLI:
+```bash
+export FLASK_APP=app.py # On Windows: set FLASK_APP=app.py
+export FLASK_DEBUG=1    # Optional: enables debug mode
+flask run
+```
+The Flask app will be available at `http://127.0.0.1:5000/`.
 
 ## Running Tests
 
@@ -129,8 +118,14 @@ For instructions on how to build the application into a standalone executable us
 
 For instructions on how to use the application, its features, and workflows, please refer to the [USER_GUIDE.MD](./USER_GUIDE.MD).
 
-## API Documentation
+## API Research & Integration Notes
 
-The application provides a RESTful API. Documentation for the API, including endpoint details, authentication, and request/response formats, can be found at the `/api/docs` route when the application is running. (e.g., `http://127.0.0.1:5000/api/docs`).
+For details on integrating with third-party printer APIs:
+*   Bambu Lab Printers: See [bambu_api_research.md](./bambu_api_research.md) for information on both local MQTT and cloud-based API interactions. **Note the current blocker regarding printer list endpoints.**
+*   Printago Service: See [printago_api_research.md](./printago_api_research.md) for information on their store-specific API (not integrated into UI).
+
+## API Documentation (Flask Web Application)
+
+The Flask web application provides a RESTful API. Documentation for this API, including endpoint details, authentication, and request/response formats, can be found at the `/api/docs` route when the Flask application is running (e.g., `http://127.0.0.1:5000/api/docs`).
 
 ---
