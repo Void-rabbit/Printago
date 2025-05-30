@@ -39,7 +39,7 @@ class TestUiWorkflows(BaseTestCase):
         }
         response_post = self.client.post('/parts/add', data=part_data, follow_redirects=True,
                                          content_type='multipart/form-data') # Use multipart for file uploads
-        
+
         self.assertEqual(response_post.status_code, 200) # Should redirect to parts list
         self.assertIn(b'Part added successfully!', response_post.data)
         self.assertIn(b'UI Test Part', response_post.data) # Check if new part is listed
@@ -65,7 +65,7 @@ class TestUiWorkflows(BaseTestCase):
             'access_code': 'ACUI001'
         }
         response_post = self.client.post('/printers/add', data=printer_data, follow_redirects=True)
-        
+
         self.assertEqual(response_post.status_code, 200) # Should redirect to printers list
         self.assertIn(b'Printer added successfully!', response_post.data)
         self.assertIn(b'UI Test Printer', response_post.data) # Check if new printer is listed
@@ -91,7 +91,7 @@ class TestUiWorkflows(BaseTestCase):
         response = self.client.get('/print_queue')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Print Queue', response.data)
-        
+
     def test_add_print_job_page_loads(self):
         """Test that the add print job page loads, even with no parts/printers."""
         response = self.client.get('/print_queue/add')

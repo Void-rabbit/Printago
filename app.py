@@ -241,12 +241,12 @@ def view_printer(printer_id):
             'progress': 0,
             'remaining_time': 0
         }
-        
+
         # Placeholder for camera feed logic:
         # The camera feed could be an MJPEG stream or RTSP.
         # For MJPEG, an <img> tag could point to a Flask route that proxies the stream:
         # e.g., <img src="{{ url_for('camera_feed', printer_id=printer.printer_id) }}">
-        # The /camera_feed/<printer_id> route in Flask would then use printer.ip_address 
+        # The /camera_feed/<printer_id> route in Flask would then use printer.ip_address
         # and potentially printer.access_code to fetch and stream the camera data.
         # For RTSP, a JavaScript player might be needed, or a backend process to convert RTSP to a web-friendly format.
         # Camera URL often looks like rtsp://<printer_ip>/live or http://<printer_ip>/camera_stream
@@ -266,7 +266,7 @@ def list_print_jobs():
     # Augment job data with part and printer names for easier display
     # Sort jobs by priority (lower number is higher priority), then by creation time for tie-breaking
     sorted_print_jobs_data = sorted(print_jobs_data, key=lambda j: (j.get('priority', 0), j.get('created_at', '')))
-    
+
     display_jobs = []
     for job in sorted_print_jobs_data: # Use sorted data
         part = next((p for p in parts if p['part_id'] == job['part_id']), None)
@@ -300,14 +300,14 @@ def add_print_job():
         save_data(print_jobs, PRINT_JOBS_FILE)
         flash('Print job added to queue successfully!')
         return redirect(url_for('list_print_jobs'))
-    
+
     return render_template('add_print_job.html', parts=parts, printers=printers, selected_part_id=selected_part_id)
 
 @app.route('/print_queue/<job_id>')
 def view_print_job(job_id):
     print_jobs = load_data(PRINT_JOBS_FILE)
     job = next((j for j in print_jobs if j['job_id'] == job_id), None)
-    
+
     if not job:
         flash('Print job not found!')
         return redirect(url_for('list_print_jobs'))
@@ -345,7 +345,7 @@ def farm_dashboard():
                 mock_status['state'] = 'printing'
                 mock_status['current_job_id'] = job['job_id']
                 break
-        
+
         display_printers.append({**printer, 'live_status': mock_status})
 
     # Print queue summary
@@ -384,7 +384,7 @@ def api_get_part(part_id):
 def api_create_part():
     if not request.json:
         return jsonify({'error': 'Invalid input, JSON expected'}), 400
-    
+
     data = request.json
     required_fields = ['name', 'material'] # 'filename' could be optional or handled differently
     if not all(field in data for field in required_fields):
@@ -421,7 +421,7 @@ def api_update_part(part_id):
     parts[part_index]['material'] = data.get('material', parts[part_index]['material'])
     parts[part_index]['print_settings'] = data.get('print_settings', parts[part_index]['print_settings'])
     parts[part_index]['filename'] = data.get('filename', parts[part_index]['filename'])
-    
+
     save_data(parts, PARTS_FILE)
     return jsonify(parts[part_index])
 
@@ -435,7 +435,7 @@ def api_delete_part(part_id):
 
     if len(parts) == original_length:
         return jsonify({'error': 'Part not found'}), 404
-        
+
     save_data(parts, PARTS_FILE)
     return jsonify({'message': 'Part deleted successfully'})
 

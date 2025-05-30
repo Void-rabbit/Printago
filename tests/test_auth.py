@@ -18,7 +18,7 @@ class TestAuth(BaseTestCase):
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200) # After redirect to login
         self.assertIn(b'Signup successful! Please login.', response.data)
-        
+
         # Verify user is in the users file
         users_data = self.load_json_data(USERS_FILE)
         self.assertIn('testuser', users_data)
@@ -61,7 +61,7 @@ class TestAuth(BaseTestCase):
             'password': 'loginpassword'
         }, follow_redirects=True)
         self.assertEqual(response.status_code, 200) # Assuming redirect to home/dashboard
-        self.assertIn(b'Login successful!', response.data) 
+        self.assertIn(b'Login successful!', response.data)
         # Check if it redirected to the home page (or a dashboard if that's the target)
         self.assertIn(b'Welcome to the 3D Print Farm Manager', response.data)
 
@@ -94,12 +94,12 @@ class TestAuth(BaseTestCase):
     #     # Login first
     #     self.client.post('/signup', data={'username': 'logoutuser', 'password': 'logoutpassword'})
     #     self.client.post('/login', data={'username': 'logoutuser', 'password': 'logoutpassword'}, follow_redirects=True)
-        
+
     #     response = self.client.get('/logout', follow_redirects=True) # Assuming /logout exists and redirects
     #     self.assertEqual(response.status_code, 200)
     #     self.assertIn(b'You have been logged out.', response.data) # Or similar message
     #     # Check that accessing a protected page redirects to login
-    #     # response_protected = self.client.get('/dashboard', follow_redirects=True) 
+    #     # response_protected = self.client.get('/dashboard', follow_redirects=True)
     #     # self.assertIn(b'Please log in to access this page', response_protected.data)
 
 if __name__ == '__main__':

@@ -82,7 +82,7 @@ This will launch the desktop UI. Login with your Bambu Lab Cloud credentials. No
 
 The Flask web application (for legacy UI and API) can be run separately if needed:
 ```bash
-python3 run.py 
+python3 run.py
 ```
 Or using Flask CLI:
 ```bash

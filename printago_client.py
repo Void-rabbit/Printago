@@ -30,12 +30,12 @@ class PrintagoAPIClient:
         try:
             response = requests.request(method, url, headers=self.headers, params=params, json=json_data, timeout=30) # Added timeout
             logger.info(f"Response Status: {response.status_code}")
-            
+
             if response.status_code == 204: # No Content
                 return None
-            
+
             response.raise_for_status() # Raises HTTPError for 4xx/5xx status codes
-            
+
             # Handle cases where response might be empty but still 2xx
             if not response.content:
                 return None
@@ -145,7 +145,7 @@ class PrintagoAPIClient:
     def set_printer_config_bulk(self, config_data: dict):
         # Body schema: SetProviderConfig
         return self._request("PATCH", "/v1/printers/set-config", json_data=config_data)
-        
+
     def rename_printer(self, printer_id: str, name: str):
         # Body schema: RenamePrinterOptions
         if not printer_id:
@@ -228,7 +228,7 @@ if __name__ == '__main__':
                     printer_details = client.get_printer(first_printer_id)
                     # if printer_details:
                         # print(json.dumps(printer_details, indent=2))
-                
+
                 printer_ids_for_stats = [p.get('id') for p in printers if p.get('id')][:2] # Get stats for first two
                 if printer_ids_for_stats:
                     print(f"--- Getting stats for printers: {printer_ids_for_stats} ---")
@@ -255,7 +255,7 @@ if __name__ == '__main__':
                 logger.info(f"Found {len(pending_jobs)} pending print jobs.")
                 # for job in pending_jobs:
                 #     print(f"  Job ID: {job.get('id')}, Part Name: {job.get('partName')}, Status: {job.get('status')}")
-            
+
             print("\n--- Getting Profiles ---")
             profiles = client.get_profiles()
             if profiles:
@@ -284,7 +284,7 @@ if __name__ == '__main__':
             # # if created_part:
             # #    logger.info(f"Created part: {created_part.get('id')} - {created_part.get('name')}")
             # #    # print(json.dumps(created_part, indent=2))
-            # #    
+            # #
             # #    # Example: Update the part just created
             # #    print(f"--- Example: Updating part {created_part.get('id')} ---")
             # #    updated_part_data = {"description": "Updated description."}

@@ -26,7 +26,7 @@
                     - Part: {{ job.part_name }} ({{ job.part_id }})
                     - Printer: {{ job.printer_name }} ({{ job.printer_id }})
                     - Status: {{ job.status }}
-                    - Priority: {{ job.priority | default('10') }} 
+                    - Priority: {{ job.priority | default('10') }}
                     - Created: {{ job.created_at }}
                 </label>
             </li>
@@ -44,7 +44,7 @@
                 alert('Please select at least one job.');
                 return;
             }
-            
+
             // For now, these actions are conceptual and will just show an alert.
             // Backend implementation would be needed for actual functionality.
             if (action === 'cancel') {

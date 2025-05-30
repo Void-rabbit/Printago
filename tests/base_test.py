@@ -36,7 +36,7 @@ class BaseTestCase(unittest.TestCase):
         PARTS_FILE = app.config['PARTS_FILE_PATH']
         PRINTERS_FILE = app.config['PRINTERS_FILE_PATH']
         PRINT_JOBS_FILE = app.config['PRINT_JOBS_FILE_PATH']
-        
+
         self.api_key = CONFIG_API_KEY
         self.headers = {
             'X-API-Key': self.api_key

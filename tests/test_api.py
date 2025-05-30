@@ -44,7 +44,7 @@ class TestPartsApi(BaseTestCase):
         created_part = response.get_json()
         self.assertIn('part_id', created_part)
         self.assertEqual(created_part['name'], part_data['name'])
-        
+
         # Verify it's saved in the file
         parts_in_file = self.load_json_data(PARTS_FILE)
         self.assertEqual(len(parts_in_file), 1)
@@ -107,7 +107,7 @@ class TestPartsApi(BaseTestCase):
         part_data = {"name": "To Be Deleted", "material": "PLA"}
         post_response = self.client.post('/api/parts', headers=self.headers, json=part_data)
         part_id = post_response.get_json()['part_id']
-        
+
         parts_in_file = self.load_json_data(PARTS_FILE)
         self.assertEqual(len(parts_in_file), 1)
 
@@ -139,7 +139,7 @@ class TestPrintersApi(BaseTestCase):
         response = self.client.get('/api/printers/non_existent_id', headers=self.headers)
         self.assertEqual(response.status_code, 404)
         self.assertIn('Printer not found', response.get_json()['error'])
-        
+
     # Note: More tests can be added here once printers can be created via API or UI in tests
 
 class TestPrintJobsApi(BaseTestCase):

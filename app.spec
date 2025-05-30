@@ -11,9 +11,9 @@ a = Analysis(['desktop_app.py'],
                         # Flask-related 'templates' and 'static' are removed.
                         # JSON data files are also removed as the desktop app should manage its own data.
              hiddenimports=[
-                 'PySide2.QtCore', 
-                 'PySide2.QtGui', 
-                 'PySide2.QtWidgets',
+                 'PySide6.QtCore',
+                 'PySide6.QtGui',
+                 'PySide6.QtWidgets',
                  'requests', # Explicitly add 'requests' as it's used by bambu_cloud_client
                  'bambu_cloud_client', # Ensure this is included if not automatically detected
                  # Do NOT include 'app' or 'flask' here if desktop_app.py is standalone
@@ -26,8 +26,8 @@ a = Analysis(['desktop_app.py'],
              cipher=block_cipher,
              noarchive=False)
 
-# Collect data files for PySide2 (e.g., Qt plugins, translations)
-a.datas += collect_data_files('PySide2', include_py_files=True)
+# Collect data files for PySide6 (e.g., Qt plugins, translations)
+a.datas += collect_data_files('PySide6', include_py_files=True)
 
 # Include the QSS stylesheet for the dark theme
 a.datas += [('static/css/dark_theme.qss', 'static/css')]
@@ -38,7 +38,7 @@ pyz = PYZ(a.pure, a.zipped_data,
 
 exe = EXE(pyz,
           a.scripts,
-          [], 
+          [],
           name='PrintagoManager',
           debug=False,
           bootloader_ignore_signals=False,
@@ -46,9 +46,10 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
+          onefile=True, # Create a single executable file
           console=True, # Keep True for debugging the packaged app
           windowed=False, # Paired with console=True for now
-          icon=None) 
+          icon=None)
 
 # For macOS, to create an app bundle (optional):
 # app_bundle = BUNDLE(exe,

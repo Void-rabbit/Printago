@@ -61,10 +61,10 @@ def authenticate(email, password): # Renamed username to email
         print(f"Attempting authentication to: {AUTH_ENDPOINT}")
         print(f"Payload: {json.dumps(payload)}") # Be careful logging passwords in real apps
         print(f"Headers: {headers}")
-        
+
         response = requests.post(AUTH_ENDPOINT, json=payload, headers=headers, timeout=10)
         response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
-        
+
         data = response.json()
         print(f"Auth Response Data: {data}")
 
@@ -75,13 +75,13 @@ def authenticate(email, password): # Renamed username to email
         refresh_token = data.get("refresh_token")
         user_id = data.get("user_id") # Often useful
         expires_in = data.get("expires_in") # Seconds until expiry
-        
+
         if access_token:
             return {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "user_id": user_id,
-                "expires_in": expires_in 
+                "expires_in": expires_in
                 # Store 'retrieved_at': time.time() if calculating expiry from 'expires_in'
             }
         else:
@@ -122,7 +122,7 @@ def load_token():
     token_path = get_token_storage_path()
     if not token_path.exists():
         return None
-    
+
     try:
         with open(token_path, 'r') as f:
             token_data = json.load(f)
@@ -132,7 +132,7 @@ def load_token():
             # if 'expires_at' in token_data and time.time() > token_data['expires_at']:
             #     print("Token expired.")
             #     # Optionally try to refresh the token here if refresh_token is available
-            #     return None 
+            #     return None
             return token_data
         return None
     except (IOError, json.JSONDecodeError) as e:
@@ -158,10 +158,10 @@ def get_printers(access_token):
         print(f"Headers: {headers}")
         response = requests.get(PRINTERS_ENDPOINT, headers=headers, timeout=10)
         response.raise_for_status()
-        
+
         printers_data = response.json()
         print(f"Printers API Response Data: {printers_data}")
-        
+
         # Assuming the response is a list of printers.
         # The actual structure might be different, e.g., {'data': [...printers...]} or {'printers': [...]}.
         # This needs verification.
@@ -174,7 +174,7 @@ def get_printers(access_token):
         else:
             print(f"Unexpected printer data format: {printers_data}")
             return None # Or an empty list, or raise an error
-            
+
     except requests.exceptions.HTTPError as err:
         print(f"HTTP error fetching printers: {err}")
         print(f"Response content: {err.response.text if err.response else 'No response content'}")
@@ -191,13 +191,13 @@ def get_printers(access_token):
 # Example Usage (for testing this module directly)
 if __name__ == '__main__':
     print("Testing Bambu Cloud Client (no actual API calls made in this example block)")
-    
+
     # Test token storage path
     print(f"Token storage path: {get_token_storage_path()}")
 
     # Mock token data for testing save/load
     mock_token = {"access_token": "test_access_123", "refresh_token": "test_refresh_456", "user_id": "test_user"}
-    
+
     if save_token(mock_token):
         loaded = load_token()
         if loaded:

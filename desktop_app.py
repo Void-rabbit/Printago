@@ -1,13 +1,24 @@
 import sys
-from PySide2.QtWidgets import (
+import os # Added for resource_path
+from PySide6.QtWidgets import ( # Changed from PySide2
     QApplication, QMainWindow, QLabel, QLineEdit, QPushButton, QVBoxLayout,
     QWidget, QMessageBox, QDialog, QDialogButtonBox, QFormLayout,
     QTableWidget, QTableWidgetItem, QHeaderView, QStatusBar, QToolBar, QAction,
     QStackedWidget, QProgressBar, QTabWidget, QComboBox, QHBoxLayout
 )
-from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QColor
+from PySide6.QtCore import Qt, Slot # Changed from PySide2
+from PySide6.QtGui import QColor # Changed from PySide2
 import bambu_cloud_client as cloud_client
+
+# Helper function for PyInstaller one-file bundle
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 # Views
 class PrinterDetailsView(QWidget):
@@ -36,11 +47,11 @@ class PrinterDetailsView(QWidget):
         status_layout.addRow(QLabel("Nozzle Temperature:"), QLabel("220°C / 220°C (Mocked)"))
         status_layout.addRow(QLabel("Bed Temperature:"), QLabel("60°C / 60°C (Mocked)"))
         status_layout.addRow(QLabel("Current Print Job:"), QLabel("example_part_v2.gcode (Mocked)"))
-        
+
         progress_bar = QProgressBar()
         progress_bar.setValue(67) # Mocked value
         status_layout.addRow(QLabel("Progress:"), progress_bar)
-        
+
         status_layout.addRow(QLabel("Time Remaining:"), QLabel("Approx. 35 mins (Mocked)"))
 
         controls_box = QHBoxLayout() # For buttons in a row
@@ -48,19 +59,19 @@ class PrinterDetailsView(QWidget):
         controls_box.addWidget(QPushButton("Resume Print"))
         controls_box.addWidget(QPushButton("Cancel Print"))
         status_layout.addRow(controls_box) # Add button layout as a single row in form layout
-        
+
         tab_widget.addTab(status_controls_tab, "Status & Controls")
 
         # Tab 2: Print Profiles
         profiles_tab = QWidget()
         profiles_layout_main = QVBoxLayout(profiles_tab) # Main layout for this tab
-        
+
         profiles_form_layout = QFormLayout() # Form layout for labeled controls
         profile_combo = QComboBox()
         profile_combo.addItems(["0.2mm Standard PLA", "0.16mm High Quality PETG", "0.28mm Draft ABS"])
         profiles_form_layout.addRow(QLabel("Available Print Profiles:"), profile_combo)
         profiles_layout_main.addLayout(profiles_form_layout) # Add form to main layout
-        
+
         profiles_layout_main.addWidget(QPushButton("View/Edit Selected Profile"))
         profiles_layout_main.addStretch() # Push elements to top
         tab_widget.addTab(profiles_tab, "Print Profiles")
@@ -97,7 +108,7 @@ class SettingsView(QWidget):
         self.theme_combo = QComboBox()
         self.theme_combo.addItems(["Dark (Default)", "Light (Not Implemented)"])
         form_layout.addRow(theme_label, self.theme_combo)
-        
+
         main_layout.addLayout(form_layout)
         main_layout.addSpacing(20)
 
@@ -105,7 +116,7 @@ class SettingsView(QWidget):
         printago_title_label = QLabel("Printago Store Integration (Placeholder)")
         printago_title_label.setStyleSheet("QLabel { font-size: 12pt; font-weight: bold; margin-top:10px; }")
         main_layout.addWidget(printago_title_label)
-        
+
         printago_form_layout = QFormLayout()
         self.printago_api_key_input = QLineEdit()
         self.printago_api_key_input.setPlaceholderText("Enter Printago API Key (if applicable)")
@@ -114,11 +125,11 @@ class SettingsView(QWidget):
         self.printago_store_id_input = QLineEdit()
         self.printago_store_id_input.setPlaceholderText("Enter Printago Store ID (if applicable)")
         printago_form_layout.addRow(QLabel("Printago Store ID:"), self.printago_store_id_input)
-        
+
         main_layout.addLayout(printago_form_layout)
         main_layout.addWidget(QPushButton("Save Printago Settings"))
         main_layout.addSpacing(20)
-        
+
         main_layout.addWidget(QPushButton("Check for Updates"))
         main_layout.addStretch() # Push all content to the top
 
@@ -188,16 +199,16 @@ class MainWindow(QMainWindow):
         self.create_actions()
         self.create_toolbar()
         self.create_status_bar()
-        
+
         self.stacked_widget = QStackedWidget()
         self.setCentralWidget(self.stacked_widget)
 
         self.printers_view_widget = QWidget()
         printers_layout = QVBoxLayout(self.printers_view_widget)
-        
+
         printers_list_label = QLabel("Discovered Cloud Printers:")
         printers_layout.addWidget(printers_list_label)
-        
+
         self.printers_table = QTableWidget()
         self.printers_table.setColumnCount(3)
         self.printers_table.setHorizontalHeaderLabels(["Name", "Status", "Actions"])
@@ -206,18 +217,18 @@ class MainWindow(QMainWindow):
         self.printers_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Interactive)
         self.printers_table.setEditTriggers(QTableWidget.NoEditTriggers) # Read-only
         printers_layout.addWidget(self.printers_table)
-        
+
         self.refresh_printers_button = QPushButton("Refresh Printers List")
         self.refresh_printers_button.clicked.connect(self.handle_refresh_printers_list)
         printers_layout.addWidget(self.refresh_printers_button)
-        
+
         self.stacked_widget.addWidget(self.printers_view_widget) # Index 0 - Printers View
-        
+
         self.settings_view = SettingsView(self) # Index 1 - Settings View
         self.stacked_widget.addWidget(self.settings_view)
-        
+
         # Placeholder for where PrinterDetailsView instances will be managed
-        # We won't add a generic one to the stack initially, 
+        # We won't add a generic one to the stack initially,
         # but rather create/show it when "View Details" is clicked.
         # For simplicity in this step, we'll just ensure navigation can switch to index 0 or 1.
 
@@ -300,13 +311,13 @@ class MainWindow(QMainWindow):
             self.show_printers_view() # Show empty printer view
             self.printers_table.setRowCount(0)
             self.login_action.setEnabled(True)
-            
+
     def show_login_dialog_manual(self):
         """Show login dialog when user clicks Login action."""
         if self.current_token_data and self.current_token_data.get("access_token"):
             QMessageBox.information(self, "Already Logged In", "You are already logged in.")
             return
-            
+
         login_dialog = LoginDialog(self)
         if login_dialog.exec_() == QDialog.Accepted:
             self.current_token_data = login_dialog.get_auth_data()
@@ -317,7 +328,7 @@ class MainWindow(QMainWindow):
                 self.login_action.setEnabled(False)
             else:
                 self.statusBar.showMessage("Login process completed but no valid token. Please try again.")
-                self.show_printers_view() 
+                self.show_printers_view()
                 self.printers_table.setRowCount(0)
                 self.login_action.setEnabled(True)
 
@@ -338,7 +349,7 @@ class MainWindow(QMainWindow):
                 for row, printer_data in enumerate(printers):
                     name = printer_data.get('name', 'Unknown Printer')
                     dev_id = printer_data.get('dev_id', 'N/A') # Store for later
-                    
+
                     # Mock status based on some printer data if available, else default
                     # This is very basic, actual status would come from a different field or logic
                     status_text = printer_data.get('print_status', "Idle") # Example: 'printing', 'finish', 'idle'
@@ -352,7 +363,7 @@ class MainWindow(QMainWindow):
 
                     self.printers_table.setItem(row, 0, QTableWidgetItem(name))
                     self.printers_table.setItem(row, 1, status_item)
-                    
+
                     # Store dev_id with the name item for later use
                     self.printers_table.item(row, 0).setData(Qt.UserRole, dev_id)
 
@@ -360,7 +371,7 @@ class MainWindow(QMainWindow):
                     btn_details = QPushButton("View Details")
                     btn_details.clicked.connect(lambda checked, pid=dev_id, pname=name: self.show_printer_details_view(pid, pname))
                     self.printers_table.setCellWidget(row, 2, btn_details)
-                    
+
                 self.statusBar.showMessage(f"Found {len(printers)} printers.")
             else:
                 self.statusBar.showMessage("No printers found for this account.")
@@ -388,7 +399,7 @@ class MainWindow(QMainWindow):
                 token_path.unlink() # Remove the token file
             except Exception as e:
                 QMessageBox.warning(self, "Logout Error", f"Could not clear token file: {e}")
-        
+
         self.current_token_data = None
         self.printers_table.setRowCount(0)
         self.statusBar.showMessage("Logged out. Token cleared.")
@@ -402,26 +413,26 @@ class MainWindow(QMainWindow):
         # Check if a details view for this printer_id already exists
         # For simplicity, we create a new one each time or have a placeholder.
         # A more robust approach would manage a dictionary of printer detail views.
-        
+
         # If you want to add it to the stacked widget and switch:
         # 1. Remove previous printer detail view if any
         # 2. Create new PrinterDetailsView
         # 3. Add to stacked widget
         # 4. Switch to it
-        
+
         # For now, let's just show a message or a dedicated (but simple) details view
         # that is not part of the main stack to keep this step focused.
         # Or, we can add one instance and update its content.
-        
+
         # Find if a PrinterDetailsView already exists in the stack (e.g. at index 2)
         # This is a simplified approach; usually, you'd manage views more dynamically.
-        
+
         details_widget_index = -1
         for i in range(self.stacked_widget.count()):
             if isinstance(self.stacked_widget.widget(i), PrinterDetailsView):
                 details_widget_index = i
                 break
-        
+
         if details_widget_index != -1:
             # Update existing view
             existing_view = self.stacked_widget.widget(details_widget_index)
@@ -433,22 +444,23 @@ class MainWindow(QMainWindow):
             new_details_view.label.setText(f"Printer Details for {printer_name} (ID: {printer_id})") # Update label before showing
             details_widget_index = self.stacked_widget.addWidget(new_details_view)
             self.stacked_widget.setCurrentIndex(details_widget_index)
-            
+
         self.statusBar.showMessage(f"Viewing details for printer: {printer_name}")
 
 
 def main():
     app = QApplication(sys.argv)
-    
-    # Load and apply QSS stylesheet
+
+    # Load and apply QSS stylesheet using resource_path
+    qss_file_path = resource_path("static/css/dark_theme.qss")
     try:
-        with open("static/css/dark_theme.qss", "r") as f:
-            qss = f.read()
-            app.setStyleSheet(qss)
+        with open(qss_file_path, "r") as file:
+            app.setStyleSheet(file.read())
+            # print(f"INFO: Successfully loaded stylesheet from: {qss_file_path}") # Optional logging
     except FileNotFoundError:
-        print("Warning: dark_theme.qss not found. Using default styles.")
+        print(f"Warning: Stylesheet not found at: {qss_file_path}. Using default styles.")
     except Exception as e:
-        print(f"Warning: Could not apply stylesheet: {e}")
+        print(f"Warning: Could not apply stylesheet from {qss_file_path}: {e}")
 
     window = MainWindow()
     window.show()

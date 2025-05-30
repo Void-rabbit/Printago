@@ -11,7 +11,7 @@
     <p><strong>IP Address:</strong> {{ printer.ip_address }}</p>
     <p><strong>Serial Number:</strong> {{ printer.serial_number }}</p>
     <p><strong>Access Code:</strong> {{ printer.access_code }}</p>
-    
+
     <div class="action-links">
         <a href="{{ url_for('list_printers') }}">Back to Printers List</a>
     </div>
@@ -27,7 +27,7 @@
     <div id="camera-feed-placeholder" style="width:640px; height:480px; border:1px solid black; background-color: #f0f0f0; display:flex; justify-content:center; align-items:center;">
         <p>Camera Feed Placeholder</p>
     </div>
-    <!-- 
+    <!--
         Camera Feed Integration Notes:
         - The camera feed could be an MJPEG stream or RTSP.
         - For MJPEG, an <img> tag could point to a Flask route that proxies the stream:
@@ -36,10 +36,10 @@
           - printer.ip_address (for the camera's IP)
           - potentially printer.access_code (if the camera feed requires authentication)
           - to fetch and stream the camera data (e.g., using requests library for HTTP stream, or OpenCV for RTSP processing).
-        - For RTSP, a JavaScript player (e.g., JSMpeg, HLS.js if converted) or a backend process 
+        - For RTSP, a JavaScript player (e.g., JSMpeg, HLS.js if converted) or a backend process
           to convert RTSP to a web-friendly format (like MJPEG or HLS) would be needed.
         - The direct camera URL might be like:
-          - rtsp://<printer_ip>/live 
+          - rtsp://<printer_ip>/live
           - http://<printer_ip>/live/camera.mjpeg (example, actual URL varies by printer/firmware)
         - Authentication might be basic auth or a custom scheme using the access_code.
     -->

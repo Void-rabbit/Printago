@@ -35,7 +35,7 @@
             <h3>{{ printer.name }}</h3>
             <p><strong>Model:</strong> {{ printer.model }}</p>
             <p><strong>Status (Mocked):</strong> {{ printer.live_status.state }}</p>
-            <p><strong>Current Job ID:</strong> 
+            <p><strong>Current Job ID:</strong>
                 {% if printer.live_status.current_job_id %}
                 <a href="{{ url_for('view_print_job', job_id=printer.live_status.current_job_id) }}">{{ printer.live_status.current_job_id }}</a>
                 {% else %}
