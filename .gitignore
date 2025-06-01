@@ -1,16 +1,34 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-*.egg-info/
-.env
-venv/
-.venv/
+# C# Project Files
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.userprefs
+*.lock.json
+*.DS_Store
 
-# PyInstaller
+# Visual Studio
+.vs/
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Dd]ebugPublic/
+[Rr]eleasePublic/
+[Xx]64/
+[Xx]86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
 build/
-dist/
+buildArtifacts/
+artifacts/
 
-# Other
-.DS_Store
+# Test results
+_ReSharper*/
+*.[Tt]est[Rr]esult
+*.VisualState.xml
+TestResult.xml
